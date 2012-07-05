@@ -10,7 +10,7 @@ if (Meteor.is_client) {
       if(decks)
         decks.destroy();
       
-      decks = new IFrame('prototype');
+      process.fork_child('/app!decks')
     }
   };
 }

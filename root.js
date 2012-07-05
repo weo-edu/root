@@ -11,6 +11,7 @@ if (Meteor.is_client) {
         decks.destroy();
       
       process.fork_child('/app!decks')
+
     }
   };
 }

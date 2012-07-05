@@ -7,10 +7,7 @@ if (Meteor.is_client) {
   Template.hello.events = {
     'click input' : function () {
       // template data, if any, is available in 'this'
-      if(decks)
-        decks.destroy();
-      
-      decks = new IFrame('prototype');
+      process.fork_child('app!decks');
     }
   };
 }

@@ -1,4 +1,5 @@
-var startupApps = [{name: 'decks', type: 'dock always_on_top'}, {name: 'decks', type: 'primary'}];
+var startupApps = [{name: 'dock', type: 'dock always_on_top'}, {name: 'decks', type: 'primary'}];
+
 
 Meteor.startup(function(){
   _.each(startupApps, function(app, idx){

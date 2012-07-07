@@ -1,7 +1,7 @@
   var desktop = new Desktop;
 
 var desktop;
-var startupApps = [{name: 'decks', type: 'primary'}, {name: 'decks', type: 'dock'}];
+var startupApps = [{name: 'decks', type: 'primary'}, {name: 'dock', type: 'dock'}];
 
 Meteor.startup(function(){
   desktop = new Desktop;

@@ -1,8 +1,5 @@
 if (Meteor.is_client) {
 
-  Meteor.defer(function(){
-    process.fork_child('/app!dock');
-  });
 }
 
 if (Meteor.is_server) {

@@ -1,12 +1,8 @@
-  var desktop = new Desktop;
-
-var desktop;
-var startupApps = [{name: 'decks', type: 'primary'}, {name: 'decks', type: 'dock'}];
+var startupApps = [{name: 'decks', type: 'dock always_on_top'}, {name: 'decks', type: 'primary'}];
 
 Meteor.startup(function(){
-  desktop = new Desktop;
   _.each(startupApps, function(app, idx){
-    desktop.spawn(app.name, app.type).foreground();
+    Desktop.spawn(app.name, app.type).foreground();
   });
 });
 

@@ -1,8 +1,10 @@
 if (Meteor.is_client) {
-  console.log('fork');
+  console.log('fork',process);
   Meteor.defer(function() {
     purl.initRoot();
-    purl.proxy(process.fork_child('/app!propurl'));
+    var child = process.fork('/app!purl-test');
+    $('body').append(child.iframe);
+    purl.proxy(child);
     purl.on('app:change',function(url) {
     	alert('tried to change path to ' + url.href);
     })

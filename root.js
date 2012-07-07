@@ -3,16 +3,20 @@ if (Meteor.is_client) {
     return "Welcome to root.";
   };
 
+  Meteor.defer(function(){
+    process.fork_child('/app!dock');
+  });
+
   var decks;
   Template.hello.events = {
-    'click input' : function () {
-      // template data, if any, is available in 'this'
-      if(decks)
-        decks.destroy();
+    // 'click input' : function () {
+    //   // template data, if any, is available in 'this'
+    //   if(decks)
+    //     decks.destroy();
       
-      process.fork_child('/app!decks')
+    //   process.fork_child('/app!decks')
 
-    }
+    // }
   };
 }
 

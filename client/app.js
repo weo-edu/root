@@ -3,14 +3,16 @@ var startupApps = [{name: 'dock', type: 'dock'}, {name: 'decks', type: 'primary'
 
 function run(app){
     var pane = Desktop.spawn(app.name, app.type).foreground();
-    purl.proxy(pane.process);
-    purl.on('app:change', function(url){
+    var pevents = purl(pane.process);
+    pevents.on('app', function(url){
       console.log('tried to change path to ' + url.href);
     });
+    pevents.on('path',function(path) {
+      purl.show(pane.process);
+    })
 }
 
 function runStartups(){
-  purl.initRoot();
   _.each(startupApps, run);
 }
 

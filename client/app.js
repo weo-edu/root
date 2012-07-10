@@ -1,26 +1,39 @@
-var startupApps = [{name: 'dock', type: 'dock'}, {name: 'decks', type: 'primary'}];
+var startupApps = [{name: 'dock', type: 'dock'}, {name: 'purl-test', type: 'primary'}];
 
+route('/sub!*', function(ctx){
+  console.log('context', ctx);
+  launch(ctx.path.replace('sub!', __meteor_runtime_config__.METEOR_SUBAPP_PREFIX));
+});
 
 $(window).resize(function(){
   Desktop.layout();
 });
 
+
+function openHost(url){
+  window.open(url);
+}
+
+function launch(url){
+  var name = utils.getAppFromPath(url);
+  run({name: name, type: 'primary'});
+}
+
 function run(app){
     var pane = Desktop.spawn(app.name, app.type).foreground();
-    purl.proxy(pane.process);
-    purl.on('app:change', function(url){
-      console.log('tried to change path to ' + url.href);
-    });
+    purl(pane.process);
+    pane.process.on('purl:app', launch);
+    pane.process.on('purl:host', openHost);
 }
 
 function runStartups(){
-  purl.initRoot();
   _.each(startupApps, run);
 }
 
 Meteor.startup(function(){
  // Meteor.defer(runStartups);
  runStartups();
+ route.start();
 });
 
 Template.hello.greeting = function () {

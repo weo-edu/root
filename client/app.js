@@ -1,6 +1,10 @@
 var startupApps = [{name: 'dock', type: 'dock'}, {name: 'decks', type: 'primary'}];
 
 
+$(window).resize(function(){
+  Desktop.layout();
+});
+
 function run(app){
     var pane = Desktop.spawn(app.name, app.type).foreground();
     purl.proxy(pane.process);

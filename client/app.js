@@ -1,4 +1,4 @@
-var startupApps = [{name: 'dock', type: 'dock'}, {name: 'purl-test', type: 'primary'}];
+var startupApps = [{name: 'dock', type: 'dock'}];
 
 route('/sub!*', function(ctx){
   $(function(){

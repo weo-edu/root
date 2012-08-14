@@ -55,8 +55,8 @@ methods.removeListener = function(user, object) {
 }
 
 methods.registerAction = function(action) {
-		//action._id = action.name;
-		Actions.insert(action);
+		var res = Actions.findOne({name: action.name});
+		res || Actions.insert(action);
 }
 
 /**
@@ -67,9 +67,10 @@ methods.registerAction = function(action) {
 
  methods.pushEvent = function(e) {
  	e._id = Meteor.uuid();
+ 	var user = Meteor.users.findOne({_id: this.userId()});
  	e.user = {
- 		_id: this.user()._id,
- 		name: this.user().username
+ 		_id: user._id,
+ 		name: user.username
  	};
  	e.time = Date.now();
 
@@ -181,6 +182,8 @@ methods.pages = function(name, id, start, end, feed_id){
 	}
 }
 
+Meteor.methods(methods);
+
 var flusher;
 function StartFlusher(interval){
 	interval = interval || 3000;
@@ -195,7 +198,6 @@ function StopFlusher(){
 Edis.start = function(options){
 	options = options || {};
 	StartFlusher(options.flush_interval);
-	Meteor.methods(methods);
 	sock.bind(options.port || 5000);
 }
 

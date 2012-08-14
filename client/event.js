@@ -53,12 +53,12 @@
 				var update = {$set: {}};
 				update['$set']['object.handled'] = true;
 				Meteor.call('/rfeed/handled', doc._id);
-				process.emit('message', doc);
+				process.emit('m', doc);
 			}
 		});
 	});
 
-	process.on('message', function(e){
+	process.on('user_message', function(e){
 		process.emit(e.object.subject, e);
 	});
 

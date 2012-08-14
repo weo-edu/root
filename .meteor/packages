@@ -12,3 +12,6 @@ accounts-ui
 accounts
 edis-livedata
 streamio
+edis-cli
+accounts-passwords
+observer

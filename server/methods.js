@@ -149,33 +149,35 @@ methods.pages = function(name, id, start, end, feed_id){
 	var reply = Meteor.Edis.instances[name].lrange(id, 0, -1);
 	var self = this;
 
-	_.each(reply, function(val, idx){
-		reply[idx] = JSON.parse(val);
-	});
-
-	if(start < reply[0].time){
-		if(end > reply[0].time)
-			end = null;
-
-		Meteor._RemoteCollectionDriver.mongo.db.collection(name + ':' + id, function(err, collection){
-			var query = {end: {$gte: start}};
-
-			if(end){
-				query.start = {$lte: end};
-			}
-			collection.find(query).toArray(function(err, pages){
-				if(err) throw err;
-
-				var sub = self.sub(feed_id);
-				_.each(pages, function(page, idx){
-					_.each(page.events, function(event, idx){
-						sub.set(name, event._id, event);
-					});
-				});
-				sub.flush();
-			});
-
+	if(reply.length > 0){
+		_.each(reply, function(val, idx){
+			reply[idx] = JSON.parse(val);
 		});
+
+		if(start < reply[0].time){
+			if(end > reply[0].time)
+				end = null;
+
+			Meteor._RemoteCollectionDriver.mongo.db.collection(name + ':' + id, function(err, collection){
+				var query = {end: {$gte: start}};
+
+				if(end){
+					query.start = {$lte: end};
+				}
+				collection.find(query).toArray(function(err, pages){
+					if(err) throw err;
+
+					var sub = self.sub(feed_id);
+					_.each(pages, function(page, idx){
+						_.each(page.events, function(event, idx){
+							sub.set(name, event._id, event);
+						});
+					});
+					sub.flush();
+				});
+
+			});
+		}
 	}
 }
 

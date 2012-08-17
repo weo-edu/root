@@ -8,6 +8,7 @@ var methods = {};
 Rfeed = new Meteor.Edis('rfeed');
 Pfeed = new Meteor.Edis('pfeed');
 Event = new Meteor.Edis('event');
+Mfeed = new Meteor.Edis('mfeed');
 Listeners = new Meteor.Edis('listeners');
 
 Meteor.publish('pfeed',function(user_id) {
@@ -16,16 +17,19 @@ Meteor.publish('pfeed',function(user_id) {
 Meteor.publish('rfeed',function(user_id) {
 	return Rfeed.watch(user_id);
 });
+Meteor.publish('mfeed', function(user_id){
+	return Mfeed.watch(user_id);
+});
 
-methods['/rfeed/handled'] = function(id){
+methods['/mfeed/handled'] = function(id){
 	var self = this;
-	var docs = Meteor.Edis.lrange('rfeed:' + self.userId(), 0, -1);
+	var docs = Meteor.Edis.lrange('mfeed:' + self.userId(), 0, -1);
 	var idx = 0;
 	docs = _.find(docs, function(doc, idx){ 
 		doc = JSON.parse(doc);
 		if(doc._id === id){
 			doc.object.handled = true;
-			Meteor.Edis.lset('rfeed:' + self.userId(), idx, JSON.stringify(doc));
+			Meteor.Edis.lset('mfeed:' + self.userId(), idx, JSON.stringify(doc));
 			return true;
 		}
 		idx++;
@@ -39,7 +43,7 @@ methods['/rfeed/handled'] = function(id){
  * @param {string> object
  */
 
- methods.addListener = function(user, object) {
+ methods.subscribe = function(user, object) {
  	Listeners.sadd(user, object);
  }
 
@@ -50,7 +54,7 @@ methods['/rfeed/handled'] = function(id){
  * @param {string} object
  */
 
-methods.removeListener = function(user, object) {
+methods.unsubscribe = function(user, object) {
 	Listeners.srem(user, object);
 }
 
@@ -65,7 +69,7 @@ methods.registerAction = function(action) {
  * @param {object} e
  */
 
- methods.pushEvent = function(e) {
+ methods.dispatch = function(e) {
  	e._id = Meteor.uuid();
  	var user = Meteor.users.findOne({_id: this.userId()});
  	e.user = {
@@ -79,25 +83,26 @@ methods.registerAction = function(action) {
  		, multi
  		, res;
 
- 	if(e.persist){
- 		if(e.action.name === 'message'){
- 			var listeners = e.object.to;
+  	if(e.persist){
+  		multi = Meteor.Edis.multi();
+ 		if(e.action.name === 'user_message'){
+ 			if(this.userId() !== e.user._id)
+ 				multi.rpush(Mfeed.key(this.userId()), se);
+	 		multi.rpush(Mfeed.key(e.object.to), se);
  		}
  		else{
-	  		multi = Listeners.multi();
-		 	multi.smembers(e.user._id);
+	  		var lmulti = Listeners.multi();
+		 	lmulti.smembers(e.user._id);
 		 	if(e.object._id)
-		 		multi.smembers(e.object._id);
+		 		lmulti.smembers(e.object._id);
 
-		 	res = multi.exec();
+		 	res = lmulti.exec();
 		 	var listeners = res[0].concat(res[1] || []);
+		 	// add to listener feeds
+			_.each(listeners, function(l){ multi.rpush(Rfeed.key(l), se); });
+			multi.rpush(Pfeed.key(e.user._id),se);
 		}
 
-	 	multi = Meteor.Edis.multi()
-	 	// add to listener feeds
-		_.each(listeners, function(l){ multi.rpush(Rfeed.key(l), se); });
-
-		multi.rpush(Pfeed.key(e.user._id),se);
 		multi.rpush('events', se);
 		multi.exec();
 	}
@@ -212,15 +217,16 @@ Edis.stop = function(){
 
 Observer.start();
 Observer.on('friend:user', function(e){
+	console.log('test');
 	Fiber(function(){
-		Meteor.call('addListener', e.user._id, e.object._id);
+		Meteor.call('subscribe', e.user._id, e.object._id);
 	}).run();
 });
 
 Observer.on('unfriend:user', function(e){
 	Fiber(function(){
-		Meteor.call('removeListener', e.user._id, e.object._id);
+		Meteor.call('unsubscribe', e.user._id, e.object._id);
 	}).run();
-})
+});
 
 })();

@@ -1,4 +1,4 @@
-var startupApps = [{name: 'dock', type: 'dock'}];
+var startupApps = [{name: 'home', type: 'primary'},  {name: 'dock', type: 'dock'}];
 
 route('/sub!*', function(ctx){
   $(function(){

@@ -70,21 +70,23 @@ methods.registerAction = function(action) {
  */
 
  methods.dispatch = function(e) {
- 	e._id = Meteor.uuid();
  	var user = Meteor.users.findOne({_id: this.userId()});
+ 	
+ 	e._id = Meteor.uuid();
+ 	e.time = Date.now();
  	e.user = {
  		_id: user._id,
- 		name: user.username
+ 		name: user.username,
+ 		grade: user.grade
  	};
- 	e.time = Date.now();
+ 	
+ 	var self = this,
+ 		se = JSON.stringify(e),
+ 		multi,
+ 		res;
 
- 	var self = this
- 		, se = JSON.stringify(e)
- 		, multi
- 		, res;
-
-  	if(e.persist){
-  		multi = Meteor.Edis.multi();
+	if(e.persist){
+		multi = Meteor.Edis.multi();
  		if(e.action.name === 'user_message'){
  			if(this.userId() !== e.user._id)
  				multi.rpush(Mfeed.key(this.userId()), se);

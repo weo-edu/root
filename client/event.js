@@ -31,7 +31,7 @@
 		if(typeof adverbs === 'string')
 			adverbs = [adverbs];
 
-		action = (action && action.name) || {name: action};
+		action = (action.name && action) || {name: action};
 		action.adverbs = adverbs;
 
 		var e = {};
@@ -43,7 +43,7 @@
 
 		if (!e.action) throw new Error('event must have action');
 		if (!e.object) throw new Error('event must have object');
-		Meteor.call('dispatch',e);
+		Meteor.call('dispatch', e);
 	}
 
 	Meteor.startup(function(){

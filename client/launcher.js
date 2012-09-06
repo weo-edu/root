@@ -27,14 +27,14 @@ Launcher = {
   }
 }
 
-route('/sub!*', function(ctx, next){
+route('/sub!*', route.publicize, function(ctx, next){
   $(function(){
     Launcher.launch(ctx.path.replace('sub!', __meteor_runtime_config__.METEOR_SUBAPP_PREFIX));
     next();
   });
 });
 
-route('*', function(ctx) {
+route('*', route.publicize, function(ctx) {
   Launcher.start();
 });
 

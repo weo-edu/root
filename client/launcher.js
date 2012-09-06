@@ -6,13 +6,15 @@ Launcher = {
   launch: function (url){
     var name = utils.getAppFromPath(url);
     var path = url.replace('/' + name, '');
-    this.run({name: name, type: 'primary', path: path});
+    this.run({name: name, type: 'primary', path: path}, true);
   },
   run: function(app, forceFore) {
     var self = this;
     var pane = Desktop.spawn(app.name, app.type, app.path, function(process) {
       purl(process);
-      process.on('purl:app', self.launch.bind(self));
+      process.on('purl:app', function(url) {
+        self.launch(url);
+      });
       process.on('purl:host', function(url) {
         window.open(url);
       });

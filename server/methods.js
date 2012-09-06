@@ -70,7 +70,6 @@
 	 */
 
 	 methods.dispatch = function(e) {
-	 	console.log('dispatching event');
 	 	var user = Meteor.users.findOne({_id: this.userId()});
 	 	
 	 	e._id = Meteor.uuid();
@@ -113,7 +112,6 @@
 		var name = e.action.name;
 		if(e.object.type)
 			name += ':' + e.object.type;
-		console.log('sock.emit', name, e);
 		sock.emit(name, e);
 	}
 

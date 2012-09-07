@@ -125,7 +125,7 @@
 		flush_feed('events');
 	}
 
-	var user_feeds = ['pfeed', 'rfeed'];
+	var user_feeds = ['pfeed', 'rfeed', 'mfeed'];
 	function flush_user_feeds(user){
 		feeds = _.map(user_feeds, function(feed){ return feed + ':' + user._id; });
 		_.each(feeds, flush_feed);

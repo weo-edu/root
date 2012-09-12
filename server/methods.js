@@ -192,7 +192,7 @@
 	Meteor.methods(methods);
 
 	var flusher;
-	function StartFlusher(interval){
+	function StartFlusher(interval) {
 		interval = interval || 3000;
 		flusher = Meteor.setInterval(flush_redis, interval);
 	}
@@ -202,10 +202,10 @@
 		flusher = null;
 	}
 
-	Edis.start = function(options){
+	Edis.start = function(options) {
 		options = options || {};
 		StartFlusher(options.flush_interval);
-		sock.bind(options.port || 5000);
+		sock.bind(options.port || __meteor_bootstrap__.env.AXON_PORT);
 	}
 
 	Edis.stop = function(){

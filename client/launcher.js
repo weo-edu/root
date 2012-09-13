@@ -41,8 +41,3 @@ route('*', route.publicize, function(ctx) {
 $(window).resize(function(){
   Desktop.layout();
 });
-
-Meteor.startup(function(){
-  route.start();
-});
-

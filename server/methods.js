@@ -205,6 +205,7 @@
 	Edis.start = function(options) {
 		options = options || {};
 		StartFlusher(options.flush_interval);
+		console.log('edis bind', options.port || __meteor_bootstrap__.env.AXON_PORT)
 		sock.bind(options.port || __meteor_bootstrap__.env.AXON_PORT);
 	}
 

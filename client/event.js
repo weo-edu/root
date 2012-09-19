@@ -1,5 +1,5 @@
-;(function(){
-	window.eventize = function(){
+;(function() {
+	window.eventize = function() {
 		this.type = this.type || this.constructor.name;
 		var o = {};
 		if ('_eventize' in this) {
@@ -17,7 +17,7 @@
 		return o;
 	}
 
-	process.on('fork', function(child){
+	process.on('fork', function(child) {
 		child.on('event', dispatch);
 	});
 	process.on('event', dispatch);
@@ -46,25 +46,25 @@
 		Meteor.call('dispatch', e);
 	}
 
-	Meteor.startup(function(){
+	Meteor.startup(function() {
 		var query = {};
 		query['action.name'] = 'user_message';
 		query['object.handled'] = false;
 		var cursor = Mfeed.find(query, {sort: [['time', 'desc']]});
 		cursor.observe({
-			added: function(doc, before_index){
+			added: function(doc, before_index) {
 				Meteor.call('/mfeed/handled', doc._id);
 				process.emit('user_message', doc);
 			}
 		});
 	});
 
-	process.on('user_message', function(e){
+	process.on('user_message', function(e) {
 		process.distribute(e.object.subject, e);
 		//process.emit(e.object.subject, e);
 	});
 
-	process.on('invite:game', function(e){
+	process.on('invite:game', function(e) {
 		var self = this;
 
 		//	If this is a real request, prompt the user.
@@ -72,7 +72,7 @@
 		//	should be propagated down accordingly
 		if(e.user._id !== Meteor.user()._id) {
 			var res = confirm(e.user.name + ' would like to play a game with you');
-			res && route.redirect('/sub!decks/game/' + e.object.body);
+			res && route('/sub!decks/game/' + e.object.body);
 		} else {
 			process.distribute('guru:invite', e);
 		}

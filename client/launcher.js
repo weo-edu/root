@@ -3,7 +3,7 @@ Launcher = {
   start: function() {
     _.each(this.startupApps, this.run.bind(this));
   },
-  launch: function (url){
+  launch: function (url) {
     var name = utils.getAppFromPath(url);
     var path = url.replace('/' + name, '');
     this.run({name: name, type: 'primary', path: path}, true);
@@ -21,14 +21,19 @@ Launcher = {
     });
 
     if(!Desktop.foreground(pane.type) || forceFore)
-      pane.foreground();
-
-    
+      pane.foreground(); 
   }
-}
+};
 
-route('/sub!*', route.publicize, function(ctx, next){
-  $(function(){
+/*
+route('/sub!home', route.publicize, function(ctx, next) {
+  $(function() {
+    Launcher.launch('/app!home');
+  });
+});*/
+
+route('/sub!*', route.publicize, function(ctx, next) {
+  $(function() {
     Launcher.launch(ctx.path.replace('sub!', __meteor_runtime_config__.METEOR_SUBAPP_PREFIX));
     next();
   });
@@ -38,6 +43,6 @@ route('*', route.publicize, function(ctx) {
   Launcher.start();
 });
 
-$(window).resize(function(){
+$(window).resize(function() {
   Desktop.layout();
 });

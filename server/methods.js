@@ -70,6 +70,7 @@
 	 */
 
 	 methods.dispatch = function(e) {
+	 	console.log('user', this.userId());
 	 	var user = Meteor.users.findOne({_id: this.userId()});
 	 	
 	 	e._id = Meteor.uuid();

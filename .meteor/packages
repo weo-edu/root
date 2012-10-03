@@ -7,13 +7,10 @@ purl
 process
 emitter
 desktop
-accounts-ui
-accounts
 edis-livedata
 views
 streamio
 edis-cli
-accounts-passwords
 observer
 stylus
 users

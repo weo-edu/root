@@ -15,4 +15,12 @@
 			Meteor.call('registerAction', {name: action});
 		});
 	});
+
+	Meteor.userDisconnected(function(userId) {
+		Meteor.users.update(userId, {$set: {connected: false}});
+	});
+
+	Meteor.userConnected(function(userId) {
+		Meteor.users.update(userId, {$set: {connected: true }});
+	});
 })();

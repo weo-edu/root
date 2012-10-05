@@ -22,12 +22,11 @@
 	});
 	process.on('event', dispatch);
 
-	function dispatch(action, object, adverbs, persist) {
-		if(typeof persist === 'undefined')
-			persist = true;
+	function dispatch(action, object, options) {
+		var persist = options.persist || true;
 
 		object = object || {name: 'weo', type: 'global', title: 'weo'};
-		adverbs = adverbs || [];
+		adverbs = options.adverbs || [];
 		if(typeof adverbs === 'string')
 			adverbs = [adverbs];
 

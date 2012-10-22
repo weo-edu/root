@@ -21,21 +21,10 @@ Launcher = {
       });
     });
 
-
-
     if(!Desktop.foreground(pane.type) || forceFore)
       pane.foreground();
 
-    //XXX this is elliots beard janks
-    Meteor.defer(function() {
-      if (app.name === 'app!home') {
-        $('#dock').hide();
-        $('#primary').css({bottom: 0, height: '100%'});
-      } else if (app.name.indexOf('!') >= 0){
-        $('#dock').show();
-        Desktop.layout();
-      }
-    });
+    Meteor.defer(redoLayout);
   }
 };
 
@@ -55,6 +44,19 @@ route('*', route.publicize, function(ctx) {
   Launcher.start();
 });
 
+
+function redoLayout() {
+ //XXX this is elliots beard janks
+  if (! Meteor.user()) {
+    $('#dock').hide();
+    $('#primary').css({bottom: 0, height: '100%'});
+  } else {
+    $('#dock').show();
+    Desktop.layout();
+  }
+}
+
 $(window).resize(function() {
   Desktop.layout();
+  redoLayout();
 });

@@ -8,12 +8,12 @@ process
 emitter
 desktop
 accounts-ui
-accounts
+accounts-base
 edis-livedata
 views
 streamio
 edis-cli
-accounts-passwords
+accounts-password
 observer
 stylus
 users

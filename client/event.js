@@ -23,7 +23,7 @@
 	process.on('event', dispatch);
 
 	function dispatch(action, object, options) {
-		if(typeof options.persist === 'undefined')
+		if(options.persist === undefined)
 			options.persist = true;
 
 		object = object || {name: 'weo', type: 'global', title: 'weo'};

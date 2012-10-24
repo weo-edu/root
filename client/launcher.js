@@ -39,12 +39,11 @@ Launcher = {
   }
 };
 
-/*
-route('/sub!home', route.publicize, function(ctx, next) {
-  $(function() {
-    Launcher.launch('/app!home');
-  });
-});*/
+User.on('logout', function() {
+  Desktop.destroyPanes();
+  Launcher.run({name: 'app!home', type: 'primary'});
+})
+
 
 route('/sub!*', route.publicize, function(ctx, next){
   Launcher.launch(ctx.path.replace('sub!', __meteor_runtime_config__.METEOR_SUBAPP_PREFIX));

@@ -93,8 +93,8 @@
 	 				multi.rpush(Mfeed.key(this.userId()), se);
 		 		multi.rpush(Mfeed.key(e.object.to), se);
 	 		}
-	 		else{
-		  		var lmulti = Listeners.multi();
+	 		else if (e.feed) {
+		  	var lmulti = Listeners.multi();
 			 	lmulti.smembers(e.user._id);
 			 	if(e.object._id)
 			 		lmulti.smembers(e.object._id);
@@ -123,7 +123,7 @@
 
 		var users = Meteor.users.find({}).fetch();
 		users && _.each(users, flush_user_feeds);
-		flush_feed('events');
+		flush_feed('events', 10000);
 	}
 
 	var user_feeds = ['pfeed', 'rfeed', 'mfeed'];
@@ -132,10 +132,11 @@
 		_.each(feeds, flush_feed);
 	}
 
-	function flush_feed(id){
+	function flush_feed(id, l){
+		l = l || limit;
 		var len = Meteor.Edis.llen(id);
-		if(len > (2*limit)){
-			var newzero = len - limit;
+		if(len > (2*l)){
+			var newzero = len - l;
 			var reply = Meteor.Edis.lrange(id, 0, newzero);
 			reply = _.map(reply, function(val){ return JSON.parse(val); });
 

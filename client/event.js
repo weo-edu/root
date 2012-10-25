@@ -39,6 +39,8 @@
 		e.action = _.extend(e.action, action);
 		e.object = (object.eventize && object.eventize()) || eventize.apply(object, []);
 		e.persist = persist;
+		e.feed = options.feed;
+		e.app = options.app;
 
 		if (!e.action) throw new Error('event must have action');
 		if (!e.object) throw new Error('event must have object');
@@ -76,4 +78,6 @@
 			process.distribute('guru:invite', e);
 		}
 	});
+
+	
 })();

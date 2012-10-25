@@ -10,7 +10,6 @@ Launcher = {
   },
   run: function(app, forceFore) {
     var self = this;
-
     var pane = Desktop.spawn(app.name, app.type, app.path, function(process) {
       purl(process);
       process.on('purl:app', function(url) {
@@ -20,8 +19,6 @@ Launcher = {
         window.open(url);
       });
     });
-
-
 
     if(!Desktop.foreground(pane.type) || forceFore)
       pane.foreground();
@@ -43,7 +40,6 @@ User.on('logout', function() {
   Desktop.destroyPanes();
   Launcher.run({name: 'app!home', type: 'primary'});
 })
-
 
 route('/sub!*', route.publicize, function(ctx, next){
   Launcher.launch(ctx.path.replace('sub!', __meteor_runtime_config__.METEOR_SUBAPP_PREFIX));

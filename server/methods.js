@@ -17,15 +17,15 @@
 	Meteor.publish('rfeed',function(user_id) {
 		return Rfeed.watch(user_id);
 	});
-	Meteor.publish('mfeed', function(user_id){
+	Meteor.publish('mfeed', function(user_id) {
 		return Mfeed.watch(user_id);
 	});
 
-	methods['/mfeed/handled'] = function(id){
+	methods['/mfeed/handled'] = function(id) {
 		var self = this;
 		var docs = Meteor.Edis.lrange('mfeed:' + self.userId(), 0, -1);
 		var idx = 0;
-		docs = _.find(docs, function(doc, idx){ 
+		docs = _.find(docs, function(doc, idx) { 
 			doc = JSON.parse(doc);
 			if(doc._id === id){
 				doc.object.handled = true;
@@ -43,7 +43,7 @@
 	 * @param {string> object
 	 */
 
-	 methods.subscribe = function(user, object) {
+	 methods.follow = function(user, object) {
 	 	Listeners.sadd(user, object);
 	 }
 
@@ -54,7 +54,7 @@
 	 * @param {string} object
 	 */
 
-	methods.unsubscribe = function(user, object) {
+	methods.unfollow = function(user, object) {
 		Listeners.srem(user, object);
 	}
 
@@ -70,9 +70,14 @@
 	 */
 
 	 methods.dispatch = function(e) {
-	 	console.log('user', this.userId());
-	 	var user = Meteor.users.findOne({_id: this.userId()});
-	 	
+	 	console.log('dispatching event');
+	 	var self = this;
+	 	var user = Meteor.users.findOne(self.userId());
+	 	if(! user) {
+	 		console.log('ERROR: User not found when attempting to dispatch event', self.userId());
+	 		return;
+	 	}
+
 	 	e._id = Meteor.uuid();
 	 	e.time = Date.now();
 	 	e.user = {
@@ -90,7 +95,7 @@
 			multi = Meteor.Edis.multi();
 	 		if(e.action.name === 'user_message'){
 	 			if(this.userId() !== e.user._id)
-	 				multi.rpush(Mfeed.key(this.userId()), se);
+	 				multi.rpush(Mfeed.key(self.userId()), se);
 		 		multi.rpush(Mfeed.key(e.object.to), se);
 	 		}
 	 		else if (e.feed) {
@@ -102,7 +107,8 @@
 			 	res = lmulti.exec();
 			 	var listeners = res[0].concat(res[1] || []);
 			 	// add to listener feeds
-				_.each(listeners, function(l){ multi.rpush(Rfeed.key(l), se); });
+			 	console.log('pushing to listeners', listeners);
+				_.each(listeners, function(l) { multi.rpush(Rfeed.key(l), se); });
 				multi.rpush(Pfeed.key(e.user._id),se);
 			}
 
@@ -117,20 +123,21 @@
 	}
 
 	var limit = 50;
-	function flush_redis(){
+	function flush_redis() {
 		if(!Meteor.users)
 			return;
 
-		var users = Meteor.users.find({}).fetch();
+		var users = Meteor.users.find({ }).fetch();
 		users && _.each(users, flush_user_feeds);
 		flush_feed('events', 10000);
 	}
 
 	var user_feeds = ['pfeed', 'rfeed', 'mfeed'];
 	function flush_user_feeds(user){
-		feeds = _.map(user_feeds, function(feed){ return feed + ':' + user._id; });
+		feeds = _.map(user_feeds, function(feed) { return feed + ':' + user._id; });
 		_.each(feeds, flush_feed);
 	}
+
 
 	function flush_feed(id, l){
 		l = l || limit;
@@ -155,7 +162,7 @@
 		}	
 	}
 
-	methods.pages = function(name, id, start, end, feed_id){
+	methods.pages = function(name, id, start, end, feed_id) {
 		var reply = Meteor.Edis.instances[name].lrange(id, 0, -1);
 		var self = this;
 
@@ -174,12 +181,12 @@
 					if(end){
 						query.start = {$lte: end};
 					}
-					collection.find(query).toArray(function(err, pages){
+					collection.find(query).toArray(function(err, pages) {
 						if(err) throw err;
 
 						var sub = self.sub(feed_id);
 						_.each(pages, function(page, idx){
-							_.each(page.events, function(event, idx){
+							_.each(page.events, function(event, idx) {
 								sub.set(name, event._id, event);
 							});
 						});
@@ -211,7 +218,7 @@
 		sock.bind(options.port || __meteor_bootstrap__.env.AXON_PORT);
 	}
 
-	Edis.stop = function(){
+	Edis.stop = function() {
 		sock.close();
 		StopFlusher();
 		_.each(methods, function(val, key){
@@ -219,5 +226,4 @@
 				delete Meteor.methods[key];
 		});
 	}
-
 })();

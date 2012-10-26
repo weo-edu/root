@@ -23,18 +23,25 @@
 	process.on('event', dispatch);
 
 	function dispatch(action, object, options) {
-		var persist = options.persist || true;
+		if(options.persist === undefined)
+			options.persist = true;
 
 		object = object || {name: 'weo', type: 'global', title: 'weo'};
-		adverbs = options.adverbs || [];
-		if(typeof adverbs === 'string')
-			adverbs = [adverbs];
+		options.adverbs = options.adverbs || [];
+		if(typeof options.adverbs === 'string')
+			options.adverbs = [options.adverbs];
 
 		action = (action.name && action) || {name: action};
-		action.adverbs = adverbs;
+		action.adverbs = options.adverbs;
 
-		var e = {};
-		e.action = Actions.findOne({name: action.name});
+		var e = {
+			action: Actions.findOne({name: action.name}),
+			object: (object.eventize && object.eventize()) || eventize.apply(object, []),
+			persist: options.persist,
+			groupId: options.groupId,
+			app: options.app
+		};
+		
 		console.assert(e.action, "Attempted to log unregistered event action");
 		e.action = _.extend(e.action, action);
 		e.object = (object.eventize && object.eventize()) || eventize.apply(object, []);
@@ -78,6 +85,4 @@
 			process.distribute('guru:invite', e);
 		}
 	});
-
-	
 })();

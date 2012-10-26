@@ -23,9 +23,8 @@
 	process.on('event', dispatch);
 
 	function dispatch(action, object, options) {
-		if(options.persist === undefined)
-			options.persist = true;
-
+		var persist = options.persist || true;
+		
 		object = object || {name: 'weo', type: 'global', title: 'weo'};
 		options.adverbs = options.adverbs || [];
 		if(typeof options.adverbs === 'string')

@@ -47,6 +47,17 @@
 	 	Listeners.sadd(user, object);
 	 }
 
+	 methods.mutualFollow = function(user) {
+	 	console.log('mutualFollow', this.userId(), user);
+	 	Listeners.sadd(user, this.userId());
+	 	Listeners.sadd(this.userId(), user);
+	 }
+
+	 methods.mutualUnfollow = function(user) {
+	 	Listeners.srem(user, this.userId());
+	 	Listeners.srem(this.userId(), user);
+	 }
+
 	/**
 	 * removes user as listener of object
 	 * 
@@ -129,7 +140,7 @@
 
 		var users = Meteor.users.find({ }).fetch();
 		users && _.each(users, flush_user_feeds);
-		flush_feed('events', 10000);
+		flush_feed('events');
 	}
 
 	var user_feeds = ['pfeed', 'rfeed', 'mfeed'];
@@ -139,11 +150,10 @@
 	}
 
 
-	function flush_feed(id, l){
-		l = l || limit;
+	function flush_feed(id){
 		var len = Meteor.Edis.llen(id);
-		if(len > (2*l)){
-			var newzero = len - l;
+		if(len > (2*limit)){
+			var newzero = len - limit;
 			var reply = Meteor.Edis.lrange(id, 0, newzero);
 			reply = _.map(reply, function(val){ return JSON.parse(val); });
 

@@ -6,7 +6,7 @@ Launcher = {
   launch: function (url) {
     var name = utils.getAppFromPath(url);
     var path = url.replace('/' + name, '');
-    this.run({name: name, type: 'primary', path: path}, true);
+    return this.run({name: name, type: 'primary', path: path}, true);
   },
   run: function(app, forceFore) {
     var self = this;
@@ -24,6 +24,7 @@ Launcher = {
       pane.foreground();
 
     Meteor.defer(redoLayout);
+    return pane;
   }
 };
 
@@ -33,14 +34,21 @@ User.on('logout', function() {
 })
 
 route('/sub!*', route.publicize, function(ctx, next){
-  Launcher.launch(ctx.path.replace('sub!', __meteor_runtime_config__.METEOR_SUBAPP_PREFIX));
-  next();
+  var pane = Launcher.launch(ctx.path.replace('sub!', __meteor_runtime_config__.METEOR_SUBAPP_PREFIX));
+  var child_window = pane.process.window();
+  var path = child_window.route && child_window.route.path();
+  //pane may chose to go to different path 
+  //change path to reflect child path
+  if ('/' + ctx.path.split('/').slice(2).join('/') !== path && path) {
+    ctx.path += path;
+    ctx.state.path = ctx.path;
+    ctx.canonicalPath = ctx.path;
+  }
 });
 
-route('*', route.publicize, function(ctx) {
+Meteor.startup(function() {
   Launcher.start();
 });
-
 
 function redoLayout() {
  //XXX this is elliots beard janks

@@ -21,8 +21,8 @@
       <h5 class='username'> <a href='/about/{{user.name}}'>{{user.name}}</a>&nbsp;</h5>\
       <span class='verb'>played</span>\
       <a class='object' href='/{{app}}{{render.deck_url}}'>{{render.deck_title}}</a>\
-      <span>against</span>
-      <h5 class='username'> <a href='/about/{{render.opponent}}'>{{render.opponent}}</a>&nbsp;</h5>
+      <span>against</span>\
+      <span> <a href='/about/{{render.opponent}}'>{{render.opponent}}</a>&nbsp;</span>\
       <div class='timeAgo'> {{time}} </div>\
     	</div>"
 		Actions.update(

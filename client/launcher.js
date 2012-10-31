@@ -30,6 +30,7 @@ Launcher = {
 
 User.on('logout', function() {
   Desktop.destroyPanes();
+  Launcher.run({name: 'dock', type: 'dock'}, false);
   Launcher.run({name: 'app!home', type: 'primary'});
 })
 

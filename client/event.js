@@ -23,8 +23,6 @@
 	process.on('event', dispatch);
 
 	function dispatch(action, object, options) {
-		var persist = options.persist || true;
-		
 		object = object || {name: 'weo', type: 'global', title: 'weo'};
 		options.adverbs = options.adverbs || [];
 		if(typeof options.adverbs === 'string')
@@ -36,17 +34,15 @@
 		var e = {
 			action: Actions.findOne({name: action.name}),
 			object: (object.eventize && object.eventize()) || eventize.apply(object, []),
-			persist: options.persist,
+			persist: options.persist || true,
 			groupId: options.groupId,
-			app: options.app
+			app: options.app,
+			feed: options.feed,
+			render: options.render
 		};
 		
 		console.assert(e.action, "Attempted to log unregistered event action");
 		e.action = _.extend(e.action, action);
-		e.object = (object.eventize && object.eventize()) || eventize.apply(object, []);
-		e.persist = persist;
-		e.feed = options.feed;
-		e.app = options.app;
 
 		if (!e.action) throw new Error('event must have action');
 		if (!e.object) throw new Error('event must have object');

@@ -81,7 +81,7 @@
 	 */
 
 	 methods.dispatch = function(e) {
-	 	console.log('dispatching event');
+	 	console.log('dispatching event', e);
 	 	var self = this;
 	 	var user = Meteor.users.findOne(self.userId());
 	 	if(! user) {
@@ -110,6 +110,7 @@
 		 		multi.rpush(Mfeed.key(e.object.to), se);
 	 		}
 	 		else if (e.feed) {
+	 			console.log('feed event');
 		  	var lmulti = Listeners.multi();
 			 	lmulti.smembers(e.user._id);
 			 	if(e.object._id)
@@ -118,8 +119,10 @@
 			 	res = lmulti.exec();
 			 	var listeners = res[0].concat(res[1] || []);
 			 	// add to listener feeds
-			 	console.log('pushing to listeners', listeners);
-				_.each(listeners, function(l) { multi.rpush(Rfeed.key(l), se); });
+				_.each(listeners, function(l) { 
+					console.log('listener', l);
+					multi.rpush(Rfeed.key(l), se); 
+				});
 				multi.rpush(Pfeed.key(e.user._id),se);
 			}
 
@@ -130,6 +133,7 @@
 		var name = e.action.name;
 		if(e.object.type)
 			name += ':' + e.object.type;
+		console.log('emit', name, e);
 		sock.emit(name, e);
 	}
 

@@ -33,10 +33,12 @@
 	});
 
 	Meteor.userDisconnected(function(userId) {
-		Meteor.users.update(userId, {$set: {connected: false}});
+		console.log('userDisconnected');
+		Meteor.users.update(userId, {$set: {status: 'disconnected'}});
 	});
 
 	Meteor.userConnected(function(userId) {
-		Meteor.users.update(userId, {$set: {connected: true }});
+		console.log('userConnected');
+		Meteor.users.update(userId, {$set: {status: 'connected' }});
 	});
 })();

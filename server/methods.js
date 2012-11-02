@@ -23,13 +23,13 @@
 
 	methods['/mfeed/handled'] = function(id) {
 		var self = this;
-		var docs = Meteor.Edis.lrange('mfeed:' + self.userId(), 0, -1);
+		var docs = Meteor.Edis.lrange('mfeed:' + self.userId, 0, -1);
 		var idx = 0;
 		docs = _.find(docs, function(doc, idx) { 
 			doc = JSON.parse(doc);
 			if(doc._id === id){
 				doc.object.handled = true;
-				Meteor.Edis.lset('mfeed:' + self.userId(), idx, JSON.stringify(doc));
+				Meteor.Edis.lset('mfeed:' + self.userId, idx, JSON.stringify(doc));
 				return true;
 			}
 			idx++;
@@ -48,14 +48,14 @@
 	 }
 
 	 methods.mutualFollow = function(user) {
-	 	console.log('mutualFollow', this.userId(), user);
-	 	Listeners.sadd(user, this.userId());
-	 	Listeners.sadd(this.userId(), user);
+	 	console.log('mutualFollow', this.userId, user);
+	 	Listeners.sadd(user, this.userId);
+	 	Listeners.sadd(this.userId, user);
 	 }
 
 	 methods.mutualUnfollow = function(user) {
-	 	Listeners.srem(user, this.userId());
-	 	Listeners.srem(this.userId(), user);
+	 	Listeners.srem(user, this.userId);
+	 	Listeners.srem(this.userId, user);
 	 }
 
 	/**
@@ -83,9 +83,9 @@
 	 methods.dispatch = function(e) {
 	 	console.log('dispatching event', e);
 	 	var self = this;
-	 	var user = Meteor.users.findOne(self.userId());
+	 	var user = Meteor.users.findOne(self.userId);
 	 	if(! user) {
-	 		console.log('ERROR: User not found when attempting to dispatch event', self.userId());
+	 		console.log('ERROR: User not found when attempting to dispatch event', self.userId);
 	 		return;
 	 	}
 
@@ -105,8 +105,8 @@
 		if(e.persist){
 			multi = Meteor.Edis.multi();
 	 		if(e.action.name === 'user_message'){
-	 			if(this.userId() !== e.user._id)
-	 				multi.rpush(Mfeed.key(self.userId()), se);
+	 			if(self.userId !== e.user._id)
+	 				multi.rpush(Mfeed.key(self.userId, se));
 		 		multi.rpush(Mfeed.key(e.object.to), se);
 	 		}
 	 		else if (e.feed) {

@@ -32,13 +32,25 @@
 
 	});
 
+	var connections = {};
+
 	Meteor.userDisconnected(function(userId) {
-		console.log('userDisconnected');
-		Meteor.users.update(userId, {$set: {status: 'disconnected'}});
+		connections[userId] && connections[userId]--;
+		if (!connections[userId]) {
+			Meteor.users.update(userId, {$set: {status: User.STATUS.DISCONNECTED}});
+			delete connections[userId];
+		}
+			
 	});
 
 	Meteor.userConnected(function(userId) {
-		console.log('userConnected');
-		Meteor.users.update(userId, {$set: {status: 'connected' }});
+		if (connections[userId])
+			connections[userId]++;
+		else {
+			connections[userId] = 1;
+			Meteor.users.update(userId, {$set: {status: User.STATUS.CONNECTED}});
+		}
 	});
+
+	Meteor.users.update({$ne: {status: User.STATUS.DISCONNECTED}}, {$set: {status: User.STATUS.DISCONNECTED}});
 })();

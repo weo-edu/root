@@ -31,6 +31,8 @@
 		action = (action.name && action) || {name: action};
 		action.adverbs = options.adverbs;
 
+		console.log('action name', action.name);
+
 		var e = {
 			action: Actions.findOne({name: action.name}),
 			object: (object.eventize && object.eventize()) || eventize.apply(object, []),
@@ -62,22 +64,24 @@
 		});
 	});
 
+	process.on('invite:game', function(e) {
+    var self = this;
+
+    //  If this is a real request, prompt the user.
+    //  Otherwise, it's a request for goat guru and
+    //  should be propagated down accordingly
+    if(e.user._id !== Meteor.user()._id) {
+      var res = confirm(e.user.name + ' would like to play a game with you');
+      res && route('/sub!decks/game/' + e.object.body);
+    } else {
+      process.distribute('guru:invite', e);
+    }
+  });
+
 	process.on('user_message', function(e) {
 		process.distribute(e.object.subject, e);
 		//process.emit(e.object.subject, e);
 	});
 
-	process.on('invite:game', function(e) {
-		var self = this;
-
-		//	If this is a real request, prompt the user.
-		//	Otherwise, it's a request for goat guru and
-		//	should be propagated down accordingly
-		if(e.user._id !== Meteor.user()._id) {
-			var res = confirm(e.user.name + ' would like to play a game with you');
-			res && route('/sub!decks/game/' + e.object.body);
-		} else {
-			process.distribute('guru:invite', e);
-		}
-	});
+	
 })();
